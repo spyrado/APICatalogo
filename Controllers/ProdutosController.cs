@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
@@ -51,12 +52,32 @@ namespace APICatalogo.Controllers
     [HttpPut("{id}")]
     public ActionResult<Produto> Put(int id, Produto produto)
     {
-      Console.WriteLine($"Info: {produto} {id}");
       if (id != produto.Id) return BadRequest();
-      _context.Produtos?.Update(produto);
+      _context.Entry(produto).State = EntityState.Modified;
       _context.SaveChanges();
 
-      return GetById(produto.Id);
+      return Ok(produto);
+    }
+
+    [HttpPatch("{id}")]
+    public ActionResult<Produto> Patch(int id, Produto produto)
+    {
+      if (id != produto.Id) return BadRequest();
+      _context.Entry(produto).State = EntityState.Modified;
+      _context.SaveChanges();
+      return Ok(produto);
+    }
+
+    [HttpDelete("{id:int}")]
+    public ActionResult<Produto> Delete(int id)
+    {
+      var produto = _context.Produtos?.FirstOrDefault(produto => produto.Id == id);
+      if(produto is null) return NotFound("Produto não encontrado...");
+
+      _context.Produtos?.Remove(produto);
+      _context.SaveChanges();
+
+      return Ok(produto);
     }
 
 
